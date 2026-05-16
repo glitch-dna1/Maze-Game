@@ -1,159 +1,230 @@
 # 🎮 Maze Game v2
 
-An interactive maze game with **easily customizable maze designs**.
+An interactive **grid-based maze game** with **5 progressive levels**, automatic level progression, and **easily customizable maze designs**.
 
 ## Features
 
-✅ Multiple difficulty levels (Easy, Medium, Hard)
-✅ Smooth player movement with collision detection
-✅ Timer and win condition
-✅ Maze selector to switch between different mazes
-✅ Clean, modular code structure
-✅ **Super easy to modify maze designs**
+✅ **Grid-based movement** - Player moves cell-by-cell (stays centered in cells)
+✅ **5 progressively complex levels** - Automatically load from mazes.js
+✅ **End screen system** - Shows completion time after each level
+✅ **Auto-progression** - Press Enter/Click to move to next level
+✅ **Game completion screen** - Special message when all levels are completed
+✅ **Automatic level counting** - No hardcoding, calculates from mazes.js
+✅ **Smooth controls** - 100ms movement for precise gameplay
+✅ **Responsive design** - Works on desktop and mobile
+
+## How to Play
+
+1. Open `index.html` in a web browser
+2. Use **Arrow Keys** or **WASD** to move through the maze
+3. Reach the **red square** to complete the level
+4. When you finish a level, an end screen appears showing your time
+5. Press **Enter**, **Space**, or click **"Next Level"** button to proceed
+6. After completing all 5 levels, you'll see a "Game Completed!" message
+7. The game restarts from Level 1
+
+### Color Legend
+- 🟢 **Green** = Start position
+- 🔴 **Red** = Goal (reach to win)
+- 🟦 **Blue** = Your player
+- ⬛ **Dark Gray** = Walls (blocks)
+- ⬜ **Light Gray** = Paths (walkable)
 
 ## File Structure
 
 ```
 v2/
-├── index.html      - Main HTML file with game interface
-├── style.css       - Game styling and responsive design
-├── config.js       - Game settings (speed, colors, sizes)
-├── mazes.js        - All maze definitions (EASY TO MODIFY!)
-├── game.js         - Core game logic and rendering
-└── README.md       - This file
+├── index.html         - Main HTML with UI
+├── style.css          - Game styling & animations
+├── config.js          - Game settings (speed, colors, sizes)
+├── mazes.js           - Level definitions (EASY TO MODIFY!)
+├── game.js            - Core game logic & progression
+└── README.md          - This file
 ```
 
-## How to Play
+## 🛠️ Customizing Mazes
 
-1. Open `index.html` in a web browser
-2. Select a maze from the dropdown menu
-3. Use **Arrow Keys** or **WASD** to move
-4. Reach the **red square** to win!
-5. Click **Reset Game** to restart
+### Changing Existing Levels
 
-## 🛠️ How to Customize Mazes
+Open `mazes.js` and edit any level's `layout` array:
 
-### Adding a New Maze
+```javascript
+level_1: {
+    layout: [
+        [1, 1, 1, 1, 1, 1, 1],
+        [1, 2, 0, 0, 0, 0, 1],  // 2 = start, 0 = path
+        [1, 0, 1, 1, 1, 0, 1],  // 1 = wall
+        [1, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 0, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 3, 1],  // 3 = goal/end
+        [1, 1, 1, 1, 1, 1, 1]
+    ]
+}
+```
 
-Open `mazes.js` and add a new maze definition to the `MAZES` object:
+### Adding New Levels
+
+Just add a new level object to the `MAZES` object:
 
 ```javascript
 const MAZES = {
-    // ... existing mazes ...
+    level_1: { /* ... */ },
+    level_2: { /* ... */ },
+    // ... existing levels ...
     
-    my_custom_maze: {
-        name: 'My Custom Maze',
+    level_6: {  // New level automatically detected!
         layout: [
-            [1, 1, 1, 1, 1, 1, 1],
-            [1, 2, 0, 0, 0, 0, 1],
-            [1, 0, 1, 1, 1, 0, 1],
-            [1, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 0, 1, 1, 1],
-            [1, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 3, 1],
-            [1, 1, 1, 1, 1, 1, 1]
+            [1, 1, 1, 1, 1],
+            [1, 2, 0, 0, 1],
+            [1, 0, 1, 0, 1],
+            [1, 0, 0, 0, 1],
+            [1, 1, 1, 3, 1]
         ]
     }
 };
 ```
 
-### Maze Layout Guide
+**Important:** The game automatically detects all levels and counts them. No need to update HTML or config files!
 
-Each maze is a 2D array where each number represents:
+### Maze Design Rules
 
-- **`0`** = Walkable path (white)
-- **`1`** = Wall (dark gray)
-- **`2`** = Start position (green) - where player spawns
-- **`3`** = End position (red) - goal to reach
+- **Use only 4 values:** `0`, `1`, `2`, `3`
+- **Exactly one `2`:** Starting position (required)
+- **Exactly one `3`:** Goal position (required)
+- **Surround with `1`s:** Create a border of walls
+- **Use `0` for paths:** Walkable areas
+- **Use `1` for walls:** Obstacles
 
-### Tips for Designing Mazes
+### Tips for Good Mazes
 
-1. **Border with walls**: Surround your maze with `1`s for a border
-2. **One start and one end**: Make sure you have exactly one `2` and one `3`
-3. **Paths**: Use `0` for walkable areas
-4. **Test it**: Save and refresh to see your maze in action
-5. **Vary difficulty**: More walls = harder maze, more open paths = easier
+1. **Increase difficulty gradually** - Level 1 small, Level 5 larger/more complex
+2. **Create unique paths** - Mix corridors, dead ends, and open areas
+3. **Avoid trivial solutions** - Make players think about their route
+4. **Test it first** - Always check that mazes are solvable!
 
-### Examples
+## ⚙️ Game Configuration
 
-**Simple 5x5 Maze:**
-```javascript
-simple: {
-    name: 'Simple 5x5',
-    layout: [
-        [1, 1, 1, 1, 1],
-        [1, 2, 0, 0, 1],
-        [1, 0, 1, 0, 1],
-        [1, 0, 0, 0, 1],
-        [1, 1, 1, 3, 1]
-    ]
-}
-```
-
-## 🎨 Customizing Colors & Settings
-
-Edit `config.js` to change game behavior:
+Edit `config.js` to customize gameplay:
 
 ```javascript
 const GAME_CONFIG = {
     cellSize: 40,           // Size of each maze cell (pixels)
-    playerSpeed: 5,         // Movement speed
+    playerSpeed: 5,         // NOT USED (grid-based movement)
     
     colors: {
         wall: '#2C3E50',    // Wall color
-        path: '#ECF0F1',    // Path color
-        player: '#3498DB',  // Player color
-        start: '#2ECC71',   // Start marker (green)
-        end: '#E74C3C',     // End marker (red)
+        path: '#ECF0F1',    // Path/background
+        player: '#3498DB',  // Player circle
+        playerBorder: '#2980B9',  // Player outline
+        start: '#2ECC71',   // Start cell
+        end: '#E74C3C',     // Goal cell
+        border: '#000000'   // Canvas border
     },
     
-    allowDiagonalMovement: false  // Allow moving diagonally?
+    allowDiagonalMovement: false  // Currently not used
 };
 ```
 
-## 🚀 How to Use as Default Maze
+### Changing Movement Speed
 
-In `mazes.js`, change the `DEFAULT_MAZE` variable:
+Edit `game.js` in the `initPlayer()` method:
 
 ```javascript
-// At the bottom of mazes.js
-const DEFAULT_MAZE = 'my_custom_maze';  // Change to your maze key
+this.moveDelay = 100;  // milliseconds between moves
+// Lower = faster (e.g., 50ms)
+// Higher = slower (e.g., 200ms)
 ```
 
-Then update `index.html` to add your maze to the selector:
+## 🎮 Game Mechanics
 
-```html
-<select id="mazeSelect">
-    <option value="my_custom_maze" selected>My Custom Maze</option>
-    <!-- ... other mazes ... -->
-</select>
-```
+### Level Progression
+- **Total levels:** Automatically calculated from `mazes.js`
+- **Current level:** Shown in end screen (e.g., "Level 1 of 5")
+- **Auto-progression:** After reaching goal, end screen waits for input
+- **Input methods:** Enter key, Space bar, or click "Next Level" button
 
-## 📊 Recommended Maze Sizes
+### Player Movement
+- **Grid-based:** Moves exactly one cell at a time
+- **100ms delay:** Between each move for precise control
+- **No wall collision:** Can't move into walls, stays in current cell
+- **Immediate direction change:** Responds to new input on next tick
 
-- **Small:** 7-9 cells wide x 8-10 cells tall
-- **Medium:** 11-15 cells wide x 12-14 cells tall
-- **Large:** 15-21 cells wide x 12-16 cells tall
+### Win Condition
+- **Goal reached:** When player's grid position matches goal position
+- **Timer stops:** Shows elapsed time on end screen
+- **Level progression:** Waits for user input before proceeding
+
+## 📊 Current Levels
+
+| Level | Difficulty | Size | Features |
+|-------|-----------|------|----------|
+| Level 1 | Easy | 11x12 | Basic maze, few branching paths |
+| Level 2 | Easy-Medium | 13x12 | More open areas, more choices |
+| Level 3 | Medium | 15x12 | Complex layout, multiple dead ends |
+| Level 4 | Medium | 17x12 | Wider maze, intricate passages |
+| Level 5 | Hard | 19x12 | Largest maze, most complex paths |
 
 ## 🐛 Troubleshooting
 
 **Game won't load?**
-- Check browser console for errors
-- Make sure all script files are loaded in the correct order
-- Verify your maze has both a start (2) and end (3)
+- Check browser console (F12) for errors
+- Ensure all script files are in the same folder
+- Verify maze has both start (2) and goal (3)
 
-**Player can move through walls?**
-- Check your maze layout for incorrect values
-- Make sure you're only using 0, 1, 2, or 3
+**Player stuck in walls?**
+- Check maze layout for incorrect values
+- Ensure walls (1) properly block paths
+- Verify start position (2) is not surrounded by walls
 
-**Maze not appearing in selector?**
-- Add it to the `<select>` dropdown in `index.html`
-- Make sure the value matches the key in `mazes.js`
+**Level won't change?**
+- Make sure mazes.js has valid syntax
+- Verify level keys match in both files
+- Check browser console for JavaScript errors
 
-## 📝 License
+**Movement feels wrong?**
+- Adjust `moveDelay` in game.js
+- Try different `cellSize` values
+- Check keyboard responsiveness
+
+## 📝 Level Design Guidelines
+
+### Recommended Sizes
+- **Easy:** 7-9 wide × 8-10 tall
+- **Medium:** 11-15 wide × 10-14 tall  
+- **Hard:** 15-21 wide × 12-16 tall
+
+### Balanced Difficulty
+1. **Open sections:** Let players explore
+2. **Dead ends:** Create decision points
+3. **Tight corridors:** Add challenge
+4. **One clear path:** Ensure it's always solvable
+
+### Example: Simple 5×5 Maze
+```javascript
+simple: {
+    layout: [
+        [1, 1, 1, 1, 1],
+        [1, 2, 0, 0, 1],  // Start top-left
+        [1, 0, 1, 0, 1],  // Walls in middle
+        [1, 0, 0, 0, 1],  // Open bottom
+        [1, 1, 1, 3, 1]   // Goal bottom-right
+    ]
+}
+```
+
+## 🎯 Next Steps
+
+1. **Test the game** - Open `index.html` and play all 5 levels
+2. **Modify levels** - Edit `mazes.js` to change difficulty or paths
+3. **Add new levels** - Create level_6, level_7, etc.
+4. **Customize colors** - Update `config.js` for your preferred theme
+5. **Adjust speed** - Change `moveDelay` for your preferred pace
+
+## 📄 License
 
 Free to use and modify!
 
 ---
 
-**Happy maze designing! 🎮**
+**Happy maze playing! 🎮**
