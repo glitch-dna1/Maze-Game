@@ -4,7 +4,7 @@ An interactive **grid-based maze game** with **5 progressive levels**, automatic
 
 ## Live Demo
 
-- Play the game live: https://glitch-dna1.github.io/Maze-Game/
+- Play the game live: <a href="https://glitch-dna1.github.io/Maze-Game/" target="_blank" rel="noopener noreferrer">https://glitch-dna1.github.io/Maze-Game/</a>
 
 ## Features
 
