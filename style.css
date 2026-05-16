@@ -1,5 +1,5 @@
 /* ============================================
-   MAZE GAME - Styling
+   MAZE GAME v2 - Styling
    ============================================ */
 
 * {
@@ -23,7 +23,7 @@ body {
     border-radius: 15px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     padding: 30px;
-    max-width: 900px;
+    max-width: 1000px;
     width: 100%;
 }
 
@@ -35,25 +35,58 @@ body {
 .header h1 {
     color: #2C3E50;
     font-size: 2.5em;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .info {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
     background: #ECF0F1;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
 }
 
+.controls-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.controls-group label {
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.controls-group select {
+    padding: 8px 12px;
+    font-size: 1em;
+    border: 2px solid #3498DB;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.controls-group select:hover {
+    background: #F8F9FA;
+}
+
+.controls-group select:focus {
+    outline: none;
+    border-color: #2980B9;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
 #timer {
-    font-size: 1.2em;
+    font-size: 1.1em;
     color: #E74C3C;
     font-weight: bold;
+    min-width: 100px;
+    text-align: center;
 }
 
 .btn {
@@ -66,6 +99,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 .btn:hover {
@@ -96,22 +130,139 @@ body {
     display: block;
 }
 
-.controls {
+.message {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2ECC71;
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    animation: popIn 0.3s ease;
+}
+
+.end-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.end-content {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    max-width: 500px;
+    animation: slideUp 0.4s ease;
+}
+
+.end-content h2 {
+    color: #2C3E50;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.end-content p {
+    color: #34495E;
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+.time-display {
+    font-size: 1.3em !important;
+    color: #E74C3C;
+    font-weight: bold;
+    margin: 20px 0 !important;
+}
+
+.btn-large {
+    margin-top: 30px;
+    padding: 15px 40px;
+    font-size: 1.1em;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.instructions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.instruction-box {
     background: #F8F9FA;
     padding: 20px;
     border-radius: 10px;
     border-left: 4px solid #3498DB;
 }
 
-.controls p {
+.instruction-box h3 {
     color: #2C3E50;
+    margin-bottom: 15px;
     font-size: 1.1em;
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
 }
 
-/* Responsive design */
+.instruction-box ul,
+.instruction-box ol {
+    margin-left: 20px;
+    line-height: 1.8;
+    color: #34495E;
+}
+
+.instruction-box li {
+    margin-bottom: 10px;
+}
+
+.instruction-box code {
+    background: #ECF0F1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    color: #E74C3C;
+}
+
+.instruction-box p {
+    margin-bottom: 10px;
+    color: #34495E;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
     .container {
         padding: 20px;
@@ -123,31 +274,28 @@ body {
 
     .info {
         flex-direction: column;
+        gap: 15px;
     }
 
-    #mazeCanvas {
-        max-width: 100%;
+    .controls-group {
+        width: 100%;
+        justify-content: center;
     }
 
-    .controls p {
-        font-size: 0.95em;
+    .controls-group select {
+        flex: 1;
+        max-width: 300px;
     }
-}
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-    width: 8px;
-}
+    .instructions {
+        grid-template-columns: 1fr;
+    }
 
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
+    .btn {
+        width: 100%;
+    }
 
-::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    #timer {
+        width: 100%;
+    }
 }

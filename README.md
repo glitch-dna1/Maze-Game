@@ -1,147 +1,159 @@
-# 🎮 Maze Game
+# 🎮 Maze Game v2
 
-A simple, configurable maze game built with HTML, CSS, and JavaScript.
+An interactive maze game with **easily customizable maze designs**.
 
-## 🎯 Features
+## Features
 
-- **Easily Configurable Maze Design** - Modify maze layouts directly in `config.js`
-- **Multiple Difficulty Levels** - Easy, Medium, and Hard mazes included
-- **Timer System** - Track how long it takes to complete the maze
-- **Smooth Player Movement** - Responsive controls with arrow keys or WASD
-- **Win Detection** - Automatic celebration when you reach the goal
-- **Responsive Design** - Works on desktop and mobile devices
+✅ Multiple difficulty levels (Easy, Medium, Hard)
+✅ Smooth player movement with collision detection
+✅ Timer and win condition
+✅ Maze selector to switch between different mazes
+✅ Clean, modular code structure
+✅ **Super easy to modify maze designs**
 
-## 📁 Project Structure
+## File Structure
 
 ```
-Maze-Game/
-├── index.html      # Main HTML file
-├── style.css       # Styling and layout
-├── game.js         # Game logic and engine
-├── config.js       # Maze configuration (CUSTOMIZE HERE)
-└── README.md       # This file
+v2/
+├── index.html      - Main HTML file with game interface
+├── style.css       - Game styling and responsive design
+├── config.js       - Game settings (speed, colors, sizes)
+├── mazes.js        - All maze definitions (EASY TO MODIFY!)
+├── game.js         - Core game logic and rendering
+└── README.md       - This file
 ```
 
-## 🕹️ How to Play
+## How to Play
 
-1. Open `index.html` in your web browser
-2. Use **Arrow Keys** or **WASD** to navigate through the maze
-3. Reach the **red square** (goal) to complete the level
-4. Click **Reset Game** to restart anytime
+1. Open `index.html` in a web browser
+2. Select a maze from the dropdown menu
+3. Use **Arrow Keys** or **WASD** to move
+4. Reach the **red square** to win!
+5. Click **Reset Game** to restart
 
-## 🛠️ How to Configure the Maze
+## 🛠️ How to Customize Mazes
 
-### Method 1: Edit the Default Maze
+### Adding a New Maze
 
-Open `config.js` and modify the `MAZE_CONFIG.layout` array:
+Open `mazes.js` and add a new maze definition to the `MAZES` object:
 
 ```javascript
-const MAZE_CONFIG = {
-    layout: [
-        [1, 1, 1, 1, 1],
-        [1, 2, 0, 3, 1],
-        [1, 1, 1, 1, 1]
-    ],
-    // ... other settings
-};
-```
-
-### Maze Legend
-
-- `0` = Walkable path (white)
-- `1` = Wall (dark gray)
-- `2` = Start position (green) - Player spawns here
-- `3` = End position (red) - Goal to reach
-
-### Method 2: Use Pre-configured Mazes
-
-Commented maze layouts are provided in `config.js`:
-- `EASY_MAZE` - Small 6x7 maze
-- `MEDIUM_MAZE` - Medium 7x10 maze
-- `HARD_MAZE` - Large 12x20 complex maze
-
-To use them, uncomment the layout and replace `MAZE_CONFIG.layout`:
-
-```javascript
-// Uncomment one of these
-MAZE_CONFIG.layout = EASY_MAZE;
-// MAZE_CONFIG.layout = MEDIUM_MAZE;
-// MAZE_CONFIG.layout = HARD_MAZE;
-```
-
-## ⚙️ Game Settings
-
-Customize game behavior in `config.js`:
-
-```javascript
-const MAZE_CONFIG = {
-    cellSize: 40,           // Size of each cell in pixels (larger = bigger maze)
-    playerSpeed: 5,         // Movement speed (higher = faster)
+const MAZES = {
+    // ... existing mazes ...
     
-    colors: {
-        wall: '#2C3E50',    // Wall color
-        path: '#ECF0F1',    // Path color
-        player: '#3498DB',  // Player color (blue circle)
-        start: '#2ECC71',   // Start position color
-        end: '#E74C3C',     // End position color
-        border: '#000000'   // Border color
+    my_custom_maze: {
+        name: 'My Custom Maze',
+        layout: [
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 2, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 0, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 3, 1],
+            [1, 1, 1, 1, 1, 1, 1]
+        ]
     }
 };
 ```
 
-## 🎨 Creating a Custom Maze
+### Maze Layout Guide
 
-1. Decide on dimensions (rows and columns)
-2. Create a 2D array where:
-   - Surround with `1` for borders
-   - Use `0` for paths
-   - Place exactly one `2` for start
-   - Place exactly one `3` for end
-3. Paste it into `config.js` and load it
+Each maze is a 2D array where each number represents:
 
-### Example: Simple 5x5 Maze
+- **`0`** = Walkable path (white)
+- **`1`** = Wall (dark gray)
+- **`2`** = Start position (green) - where player spawns
+- **`3`** = End position (red) - goal to reach
 
+### Tips for Designing Mazes
+
+1. **Border with walls**: Surround your maze with `1`s for a border
+2. **One start and one end**: Make sure you have exactly one `2` and one `3`
+3. **Paths**: Use `0` for walkable areas
+4. **Test it**: Save and refresh to see your maze in action
+5. **Vary difficulty**: More walls = harder maze, more open paths = easier
+
+### Examples
+
+**Simple 5x5 Maze:**
 ```javascript
-const MY_CUSTOM_MAZE = [
-    [1, 1, 1, 1, 1],
-    [1, 2, 0, 0, 1],
-    [1, 1, 0, 1, 1],
-    [1, 0, 0, 0, 1],
-    [1, 0, 1, 3, 1],
-    [1, 1, 1, 1, 1]
-];
-
-// Use it:
-MAZE_CONFIG.layout = MY_CUSTOM_MAZE;
+simple: {
+    name: 'Simple 5x5',
+    layout: [
+        [1, 1, 1, 1, 1],
+        [1, 2, 0, 0, 1],
+        [1, 0, 1, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 1, 1, 3, 1]
+    ]
+}
 ```
 
-## 🚀 Tips for Maze Design
+## 🎨 Customizing Colors & Settings
 
-- **Keep Start and End Apart** - Too close makes it too easy
-- **Balance Paths** - Mix wide corridors with tight passages
-- **Add Loops** - Circular paths make navigation trickier
-- **Test Solvability** - Make sure there's always a path to the end
-- **Use Symmetry** (optional) - Creates interesting visual patterns
+Edit `config.js` to change game behavior:
 
-## 🔧 Technical Details
+```javascript
+const GAME_CONFIG = {
+    cellSize: 40,           // Size of each maze cell (pixels)
+    playerSpeed: 5,         // Movement speed
+    
+    colors: {
+        wall: '#2C3E50',    // Wall color
+        path: '#ECF0F1',    // Path color
+        player: '#3498DB',  // Player color
+        start: '#2ECC71',   // Start marker (green)
+        end: '#E74C3C',     // End marker (red)
+    },
+    
+    allowDiagonalMovement: false  // Allow moving diagonally?
+};
+```
 
-- **Canvas-based Rendering** - Smooth performance
-- **Pixel-perfect Collision Detection** - Accurate player movement
-- **Configurable Cell Size** - Scale the entire maze easily
-- **No Dependencies** - Pure JavaScript, works anywhere
+## 🚀 How to Use as Default Maze
 
-## 📱 Browser Compatibility
+In `mazes.js`, change the `DEFAULT_MAZE` variable:
 
-Works on all modern browsers:
-- Chrome/Edge (recommended)
-- Firefox
-- Safari
-- Opera
+```javascript
+// At the bottom of mazes.js
+const DEFAULT_MAZE = 'my_custom_maze';  // Change to your maze key
+```
+
+Then update `index.html` to add your maze to the selector:
+
+```html
+<select id="mazeSelect">
+    <option value="my_custom_maze" selected>My Custom Maze</option>
+    <!-- ... other mazes ... -->
+</select>
+```
+
+## 📊 Recommended Maze Sizes
+
+- **Small:** 7-9 cells wide x 8-10 cells tall
+- **Medium:** 11-15 cells wide x 12-14 cells tall
+- **Large:** 15-21 cells wide x 12-16 cells tall
+
+## 🐛 Troubleshooting
+
+**Game won't load?**
+- Check browser console for errors
+- Make sure all script files are loaded in the correct order
+- Verify your maze has both a start (2) and end (3)
+
+**Player can move through walls?**
+- Check your maze layout for incorrect values
+- Make sure you're only using 0, 1, 2, or 3
+
+**Maze not appearing in selector?**
+- Add it to the `<select>` dropdown in `index.html`
+- Make sure the value matches the key in `mazes.js`
 
 ## 📝 License
 
-Feel free to use and modify this game for personal or educational purposes.
+Free to use and modify!
 
 ---
 
-**Enjoy the game! Happy maze solving! 🎉**
+**Happy maze designing! 🎮**

@@ -1,0 +1,153 @@
+/* ============================================
+   MAZE GAME - Styling
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    max-width: 900px;
+    width: 100%;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: #2C3E50;
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    background: #ECF0F1;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+#timer {
+    font-size: 1.2em;
+    color: #E74C3C;
+    font-weight: bold;
+}
+
+.btn {
+    padding: 10px 25px;
+    font-size: 1em;
+    background: #3498DB;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: #2980B9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.game-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    background: #34495E;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#mazeCanvas {
+    border: 3px solid #2C3E50;
+    background: #ECF0F1;
+    border-radius: 5px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.controls {
+    background: #F8F9FA;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #3498DB;
+}
+
+.controls p {
+    color: #2C3E50;
+    font-size: 1.1em;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    .header h1 {
+        font-size: 1.8em;
+    }
+
+    .info {
+        flex-direction: column;
+    }
+
+    #mazeCanvas {
+        max-width: 100%;
+    }
+
+    .controls p {
+        font-size: 0.95em;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

@@ -3,37 +3,64 @@
 // ============================================
 
 class MazeGame {
-    constructor(canvasId) {
+    constructor(canvasId, mazeKey = DEFAULT_MAZE) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         
-        // Load configuration
-        this.layout = MAZE_CONFIG.layout;
-        this.cellSize = MAZE_CONFIG.cellSize;
-        this.playerSpeed = MAZE_CONFIG.playerSpeed;
-        this.colors = MAZE_CONFIG.colors;
+        // Get all maze keys and track levels
+        this.allMazeKeys = Object.keys(MAZES);
+        this.totalLevels = this.allMazeKeys.length;
+        this.currentLevelIndex = this.allMazeKeys.indexOf(mazeKey);
         
-        // Set canvas dimensions
-        this.cols = this.layout[0].length;
-        this.rows = this.layout.length;
-        this.canvas.width = this.cols * this.cellSize;
-        this.canvas.height = this.rows * this.cellSize;
+        // Load maze and configuration
+        this.loadMaze(mazeKey);
+        this.loadConfig();
         
-        // Initialize player and game state
-        this.initGame();
-        
-        // Input handling
+        // Game state
         this.keys = {};
-        this.setupEventListeners();
-        
-        // Game loop
-        this.startTime = Date.now();
         this.gameWon = false;
+        this.startTime = Date.now();
+        this.finishTime = null;
+        this.currentMazeKey = mazeKey;
+        this.showingEndScreen = false;
+        
+        // Setup event listeners and start game loop
+        this.setupEventListeners();
         this.gameLoop();
     }
     
-    initGame() {
+    loadMaze(mazeKey) {
+        if (!MAZES[mazeKey]) {
+            console.error(`Maze '${mazeKey}' not found!`);
+            console.log('Available mazes:', Object.keys(MAZES));
+            mazeKey = DEFAULT_MAZE;
+        }
+        
+        const maze = MAZES[mazeKey];
+        this.layout = maze.layout;
+        this.mazeName = maze.name;
+        this.rows = this.layout.length;
+        this.cols = this.layout[0].length;
+    }
+    
+    loadConfig() {
+        this.cellSize = GAME_CONFIG.cellSize;
+        this.playerSpeed = GAME_CONFIG.playerSpeed;
+        this.colors = GAME_CONFIG.colors;
+        this.playerRadius = GAME_CONFIG.playerRadius;
+        
+        // Set canvas dimensions based on maze size
+        this.canvas.width = this.cols * this.cellSize;
+        this.canvas.height = this.rows * this.cellSize;
+        
         // Find start and end positions
+        this.findPositions();
+        
+        // Initialize player
+        this.initPlayer();
+    }
+    
+    findPositions() {
         this.startPos = null;
         this.endPos = null;
         
@@ -50,15 +77,21 @@ class MazeGame {
         
         if (!this.startPos || !this.endPos) {
             console.error('Maze must have a start (2) and end (3) position!');
-            return;
         }
+    }
+    
+    initPlayer() {
+        if (!this.startPos) return;
         
-        // Player position (in pixels, centered in cell)
+        // Player stored as grid position, not pixels
         this.player = {
-            x: this.startPos.x * this.cellSize + this.cellSize / 2,
-            y: this.startPos.y * this.cellSize + this.cellSize / 2,
-            radius: this.cellSize / 3
+            gridX: this.startPos.x,
+            gridY: this.startPos.y,
+            radius: this.playerRadius
         };
+        
+        this.lastMoveTime = 0;
+        this.moveDelay = 100; // milliseconds between moves (adjust for speed)
         
         this.gameWon = false;
         this.startTime = Date.now();
@@ -68,23 +101,39 @@ class MazeGame {
     setupEventListeners() {
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
-            this.keys[e.key] = true;
+            this.keys[e.key.toLowerCase()] = true;
+            
+            // Allow Enter or Space to proceed from end screen
+            if (this.showingEndScreen && (e.key === 'Enter' || e.key === ' ')) {
+                this.proceedToNextLevel();
+            }
         });
         
         document.addEventListener('keyup', (e) => {
-            this.keys[e.key] = false;
+            this.keys[e.key.toLowerCase()] = false;
         });
         
         // Reset button
         document.getElementById('resetBtn').addEventListener('click', () => {
-            this.initGame();
+            this.initPlayer();
+        });
+        
+        // Maze selector
+        document.getElementById('mazeSelect').addEventListener('change', (e) => {
+            this.switchMaze(e.target.value);
+        });
+        
+        // End screen button
+        document.getElementById('nextLevelBtn').addEventListener('click', () => {
+            this.proceedToNextLevel();
         });
     }
     
-    getGridPosition(pixelX, pixelY) {
-        const col = Math.floor(pixelX / this.cellSize);
-        const row = Math.floor(pixelY / this.cellSize);
-        return { col, row };
+    switchMaze(mazeKey) {
+        this.loadMaze(mazeKey);
+        this.loadConfig();
+        this.currentMazeKey = mazeKey;
+        this.currentLevelIndex = this.allMazeKeys.indexOf(mazeKey);
     }
     
     isCellWalkable(col, row) {
@@ -93,81 +142,62 @@ class MazeGame {
             return false;
         }
         
-        // Check if it's a wall (1) - not walkable
-        const cellType = this.layout[row][col];
-        return cellType !== 1;
+        // Wall (1) is not walkable
+        return this.layout[row][col] !== 1;
     }
     
-    isWalkable(pixelX, pixelY) {
-        const radius = this.player.radius * 0.8;  // Slightly smaller radius for collision
-        
-        // Check center and 4 cardinal directions
-        const checkPoints = [
-            { x: pixelX, y: pixelY },                // center
-            { x: pixelX + radius, y: pixelY },      // right
-            { x: pixelX - radius, y: pixelY },      // left
-            { x: pixelX, y: pixelY + radius },      // bottom
-            { x: pixelX, y: pixelY - radius }       // top
-        ];
-        
-        // All check points must be walkable
-        for (let point of checkPoints) {
-            const { col, row } = this.getGridPosition(point.x, point.y);
-            if (!this.isCellWalkable(col, row)) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
     
-    updatePlayer() {
-        if (this.gameWon) return;
+    update() {
+        if (this.gameWon || this.showingEndScreen) return;
         
-        let newX = this.player.x;
-        let newY = this.player.y;
-        
-        // Handle movement inputs
-        if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
-            newY -= this.playerSpeed;
-        }
-        if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
-            newY += this.playerSpeed;
-        }
-        if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
-            newX -= this.playerSpeed;
-        }
-        if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
-            newX += this.playerSpeed;
+        // Check if enough time has passed since last move
+        const currentTime = Date.now();
+        if (currentTime - this.lastMoveTime < this.moveDelay) {
+            return; // Not enough time has passed
         }
         
-        // Collision detection with axis-by-axis checking (allows sliding along walls)
-        if (this.isWalkable(newX, newY)) {
-            this.player.x = newX;
-            this.player.y = newY;
-        } else {
-            // Try moving only on X axis (allows sliding along walls)
-            if (this.isWalkable(newX, this.player.y)) {
-                this.player.x = newX;
+        const keys = this.keys;
+        let newGridX = this.player.gridX;
+        let newGridY = this.player.gridY;
+        let moved = false;
+        
+        // Check input and try to move to adjacent cell
+        if (keys['arrowup'] || keys['w']) {
+            if (this.isCellWalkable(this.player.gridX, this.player.gridY - 1)) {
+                newGridY = this.player.gridY - 1;
+                moved = true;
             }
-            // Try moving only on Y axis (allows sliding along walls)
-            if (this.isWalkable(this.player.x, newY)) {
-                this.player.y = newY;
+        } else if (keys['arrowdown'] || keys['s']) {
+            if (this.isCellWalkable(this.player.gridX, this.player.gridY + 1)) {
+                newGridY = this.player.gridY + 1;
+                moved = true;
+            }
+        } else if (keys['arrowleft'] || keys['a']) {
+            if (this.isCellWalkable(this.player.gridX - 1, this.player.gridY)) {
+                newGridX = this.player.gridX - 1;
+                moved = true;
+            }
+        } else if (keys['arrowright'] || keys['d']) {
+            if (this.isCellWalkable(this.player.gridX + 1, this.player.gridY)) {
+                newGridX = this.player.gridX + 1;
+                moved = true;
             }
         }
         
-        // Check if player reached the end
-        const endPixelX = this.endPos.x * this.cellSize + this.cellSize / 2;
-        const endPixelY = this.endPos.y * this.cellSize + this.cellSize / 2;
-        const distance = Math.sqrt(
-            (this.player.x - endPixelX) ** 2 + 
-            (this.player.y - endPixelY) ** 2
-        );
+        // Update lastMoveTime every 200ms to register key press
+        this.lastMoveTime = currentTime;
         
-        if (distance < this.cellSize / 2 && !this.gameWon) {
-            this.gameWon = true;
-            this.finishTime = Math.round((Date.now() - this.startTime) / 1000);
-            document.getElementById('timer').textContent = `Time: ${this.finishTime}s`;
+        // Apply movement if valid
+        if (moved) {
+            this.player.gridX = newGridX;
+            this.player.gridY = newGridY;
+            
+            // Check if player reached the end
+            if (this.player.gridX === this.endPos.x && this.player.gridY === this.endPos.y) {
+                this.gameWon = true;
+                this.finishTime = Date.now();
+                this.showWinMessage();
+            }
         }
     }
     
@@ -179,91 +209,115 @@ class MazeGame {
         // Draw maze
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
+                const cellType = this.layout[row][col];
                 const x = col * this.cellSize;
                 const y = row * this.cellSize;
-                const cellType = this.layout[row][col];
                 
-                if (cellType === 1) {
-                    // Draw wall
+                if (cellType === 1) { // Wall
                     this.ctx.fillStyle = this.colors.wall;
                     this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
-                } else if (cellType === 2) {
-                    // Draw start position
+                } else if (cellType === 2) { // Start
                     this.ctx.fillStyle = this.colors.start;
                     this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
-                } else if (cellType === 3) {
-                    // Draw end position
+                } else if (cellType === 3) { // End
                     this.ctx.fillStyle = this.colors.end;
                     this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
                 }
             }
         }
         
-        // Draw grid lines (optional - helps see cells)
-        this.ctx.strokeStyle = '#BDC3C7';
-        this.ctx.lineWidth = 0.5;
-        for (let col = 0; col <= this.cols; col++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(col * this.cellSize, 0);
-            this.ctx.lineTo(col * this.cellSize, this.canvas.height);
-            this.ctx.stroke();
-        }
-        for (let row = 0; row <= this.rows; row++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, row * this.cellSize);
-            this.ctx.lineTo(this.canvas.width, row * this.cellSize);
-            this.ctx.stroke();
-        }
+        // Draw player at grid cell center
+        const playerPixelX = this.player.gridX * this.cellSize + this.cellSize / 2;
+        const playerPixelY = this.player.gridY * this.cellSize + this.cellSize / 2;
         
-        // Draw player
         this.ctx.fillStyle = this.colors.player;
         this.ctx.beginPath();
-        this.ctx.arc(this.player.x, this.player.y, this.player.radius, 0, Math.PI * 2);
+        this.ctx.arc(playerPixelX, playerPixelY, this.player.radius, 0, Math.PI * 2);
         this.ctx.fill();
         
-        // Draw win message
-        if (this.gameWon) {
-            this.drawWinMessage(this.finishTime);
-        }
-    }
-    
-    drawWinMessage(time) {
-        // Semi-transparent overlay
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.strokeStyle = this.colors.playerBorder;
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
         
-        // Win text
-        this.ctx.fillStyle = '#2ECC71';
-        this.ctx.font = 'bold 48px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('🎉 YOU WIN! 🎉', this.canvas.width / 2, this.canvas.height / 2 - 40);
-        
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '28px Arial';
-        this.ctx.fillText(`Time: ${time}s`, this.canvas.width / 2, this.canvas.height / 2 + 30);
+        // Draw border
+        this.ctx.strokeStyle = this.colors.border;
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
     }
     
     gameLoop() {
-        this.updatePlayer();
+        this.update();
         this.draw();
-        
-        // Only update timer if game is still running
-        if (!this.gameWon) {
-            this.updateTimer();
-        }
+        this.updateTimer();
         
         requestAnimationFrame(() => this.gameLoop());
     }
     
     updateTimer() {
-        const elapsed = Math.round((Date.now() - this.startTime) / 1000);
-        document.getElementById('timer').textContent = `Time: ${elapsed}s`;
+        let elapsed;
+        
+        if (this.finishTime) {
+            elapsed = Math.floor((this.finishTime - this.startTime) / 1000);
+        } else {
+            elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+        }
+        
+        document.getElementById('timer').textContent = `⏱️ Time: ${elapsed}s`;
+    }
+    
+    showWinMessage() {
+        this.showingEndScreen = true;
+        const timeSeconds = Math.floor((this.finishTime - this.startTime) / 1000);
+        const currentLevelNum = this.currentLevelIndex + 1;
+        const isLastLevel = this.currentLevelIndex === this.totalLevels - 1;
+        
+        const endScreen = document.getElementById('endScreen');
+        const endContent = document.getElementById('endContent');
+        
+        if (isLastLevel) {
+            endContent.innerHTML = `
+                <h2>🎉 GAME COMPLETED! 🎉</h2>
+                <p>You've completed all ${this.totalLevels} levels!</p>
+                <p class="time-display">Final Time: ${timeSeconds}s</p>
+                <p>Great job! Well done!</p>
+            `;
+            document.getElementById('nextLevelBtn').textContent = 'Restart Game';
+        } else {
+            endContent.innerHTML = `
+                <h2>✅ Level ${currentLevelNum} Complete!</h2>
+                <p>Time: ${timeSeconds}s</p>
+                <p>Level ${currentLevelNum} of ${this.totalLevels}</p>
+            `;
+            document.getElementById('nextLevelBtn').textContent = 'Next Level (Press Enter or Click)';
+        }
+        
+        endScreen.style.display = 'flex';
+    }
+    
+    proceedToNextLevel() {
+        const endScreen = document.getElementById('endScreen');
+        endScreen.style.display = 'none';
+        this.showingEndScreen = false;
+        
+        const isLastLevel = this.currentLevelIndex === this.totalLevels - 1;
+        
+        if (isLastLevel) {
+            // Restart from first level
+            this.currentLevelIndex = 0;
+            const firstLevelKey = this.allMazeKeys[0];
+            this.switchMaze(firstLevelKey);
+            document.getElementById('mazeSelect').value = firstLevelKey;
+        } else {
+            // Go to next level
+            this.currentLevelIndex++;
+            const nextLevelKey = this.allMazeKeys[this.currentLevelIndex];
+            this.switchMaze(nextLevelKey);
+            document.getElementById('mazeSelect').value = nextLevelKey;
+        }
     }
 }
 
-// ============================================
-// Initialize Game
-// ============================================
+// Initialize game when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new MazeGame('mazeCanvas');
+    const game = new MazeGame('mazeCanvas', DEFAULT_MAZE);
 });

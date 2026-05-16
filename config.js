@@ -1,87 +1,34 @@
 // ============================================
-// MAZE CONFIGURATION
+// GAME CONFIGURATION
 // ============================================
-// 0 = walkable path
-// 1 = wall
-// 2 = start position (player spawn)
-// 3 = end position (goal)
 
-const MAZE_CONFIG = {
-    // Define your maze layout here
-    // Easy to modify and create new mazes
-    layout: [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 2, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
-        [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1],
-        [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ],
+const GAME_CONFIG = {
+    // Cell size in pixels
+    cellSize: 40,
     
-    // Game settings
-    cellSize: 40,           // Size of each maze cell in pixels
-    playerSpeed: 5,         // Player movement speed
+    // Player movement speed (pixels per frame)
+    playerSpeed: 5,
     
-    // Colors
+    // Colors configuration
     colors: {
         wall: '#2C3E50',
         path: '#ECF0F1',
         player: '#3498DB',
+        playerBorder: '#2980B9',
         start: '#2ECC71',
         end: '#E74C3C',
         border: '#000000'
-    }
+    },
+    
+    // Visual settings
+    playerRadius: null,  // Set to null to auto-calculate (1/3 of cellSize)
+    wallThickness: 2,
+    
+    // Game behavior
+    allowDiagonalMovement: false
 };
 
-// ============================================
-// ALTERNATIVE MAZE LAYOUTS
-// ============================================
-// Uncomment to use different maze layouts
-
-/*
-// Small maze - Easy
-const EASY_MAZE = [
-    [1, 1, 1, 1, 1, 1, 1],
-    [1, 2, 0, 1, 0, 0, 1],
-    [1, 1, 0, 1, 0, 1, 1],
-    [1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 1, 3, 1],
-    [1, 1, 1, 1, 1, 1, 1]
-];
-
-// Medium maze
-const MEDIUM_MAZE = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 2, 0, 1, 0, 0, 0, 1, 0, 1],
-    [1, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
-
-// Hard maze - Complex
-const HARD_MAZE = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 2, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
-*/
-
-// To use alternative mazes, replace MAZE_CONFIG.layout with any of the above
+// Auto-calculate player radius if not set
+if (GAME_CONFIG.playerRadius === null) {
+    GAME_CONFIG.playerRadius = GAME_CONFIG.cellSize / 3;
+}

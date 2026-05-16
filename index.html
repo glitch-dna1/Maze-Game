@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze Game</title>
+    <title>Maze Game v2</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎮 Maze Game</h1>
+            <h1>🎮 Maze Game v2</h1>
             <div class="info">
-                <span id="timer">Time: 0s</span>
+                <div class="controls-group">
+                    <label for="mazeSelect">Select Maze:</label>
+                    <select id="mazeSelect">
+                        <option value="level_1" selected>Level 1</option>
+                        <option value="level_2">Level 2</option>
+                        <option value="level_3">Level 3</option>
+                        <option value="level_4">Level 4</option>
+                        <option value="level_5">Level 5</option>
+                    </select>
+                </div>
+                <span id="timer">⏱️ Time: 0s</span>
                 <button id="resetBtn" class="btn">Reset Game</button>
             </div>
         </div>
@@ -20,12 +30,40 @@
             <canvas id="mazeCanvas"></canvas>
         </div>
         
-        <div class="controls">
-            <p>🎮 Use Arrow Keys or WASD to move</p>
-            <p>🟢 Green = Start | 🔴 Red = End</p>
+        <div id="endScreen" class="end-screen">
+            <div id="endContent" class="end-content">
+                <!-- Content inserted by JavaScript -->
+            </div>
+            <button id="nextLevelBtn" class="btn btn-large">Next Level</button>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="instructions">
+            <div class="instruction-box">
+                <h3>📋 How to Play:</h3>
+                <ul>
+                    <li>🎮 Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to move</li>
+                    <li>🟢 <strong>Green</strong> = Start position</li>
+                    <li>🔴 <strong>Red</strong> = Goal (reach to win)</li>
+                    <li>🟦 <strong>Blue</strong> = Your player</li>
+                </ul>
+            </div>
+            
+            <div class="instruction-box">
+                <h3>🛠️ Customization:</h3>
+                <p>To add or modify mazes:</p>
+                <ol>
+                    <li>Open <code>mazes.js</code></li>
+                    <li>Add your maze to the <code>MAZES</code> object</li>
+                    <li>Use: 1=wall, 0=path, 2=start, 3=end</li>
+                    <li>Save and refresh the page</li>
+                </ol>
+            </div>
         </div>
     </div>
 
+    <script src="mazes.js"></script>
     <script src="config.js"></script>
     <script src="game.js"></script>
 </body>
