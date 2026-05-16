@@ -1,4 +1,4 @@
-# 🎮 Maze Game v2
+# 🎮 Maze Game
 
 An interactive **grid-based maze game** with **5 progressive levels**, automatic level progression, and **easily customizable maze designs**.
 
@@ -15,17 +15,27 @@ An interactive **grid-based maze game** with **5 progressive levels**, automatic
 ✅ **Game completion screen** - Special message when all levels are completed
 ✅ **Automatic level counting** - No hardcoding, calculates from mazes.js
 ✅ **Smooth controls** - 100ms movement for precise gameplay
-✅ **Responsive design** - Works on desktop and mobile
+✅ **Virtual D-Pad** - On-screen arrow buttons for mobile and touch devices
+✅ **Multiple control methods** - Keyboard (Arrow Keys/WASD) + Virtual D-Pad
+✅ **Fully responsive** - Works on desktop, tablet, and mobile browsers
+✅ **Comprehensive comments** - Well-documented code for easy understanding
 
 ## How to Play
 
 1. Open `index.html` in a web browser
-2. Use **Arrow Keys** or **WASD** to move through the maze
+2. Move through the maze using one of these methods:
+   - **Keyboard:** Arrow Keys or WASD (recommended for desktop)
+   - **Virtual D-Pad:** Click/tap the on-screen arrow buttons (great for mobile)
 3. Reach the **red square** to complete the level
-4. When you finish a level, an end screen appears showing your time
-5. Press **Enter**, **Space**, or click **"Next Level"** button to proceed
-6. After completing all 5 levels, you'll see a "Game Completed!" message
-7. The game restarts from Level 1
+4. When you finish a level, an end screen appears showing your completion time
+5. Progress to the next level by pressing **Enter**, **Space**, or clicking **"Next Level"** button
+6. After completing all 5 levels, you'll see a "Game Completed!" summary with all your times
+7. Click **"Play Again"** to restart from Level 1
+
+### Control Options
+- 📱 **Mobile/Tablet:** Use the Virtual D-Pad buttons (↑ ↓ ← →)
+- 🎮 **Desktop:** Use Arrow Keys or WASD keys
+- 🖱️ **Any Device:** Mix keyboard and D-Pad controls
 
 ### Color Legend
 - 🟢 **Green** = Start position
@@ -37,12 +47,11 @@ An interactive **grid-based maze game** with **5 progressive levels**, automatic
 ## File Structure
 
 ```
-v2/
-├── index.html         - Main HTML with UI
-├── style.css          - Game styling & animations
-├── config.js          - Game settings (speed, colors, sizes)
+Maze-Game/
+├── index.html         - Main HTML with UI and Virtual D-Pad buttons
+├── style.css          - Game styling, animations, and responsive D-Pad design
 ├── mazes.js           - Level definitions (EASY TO MODIFY!)
-├── game.js            - Core game logic & progression
+├── game.js            - Core game logic, controls, and D-Pad event handling
 └── README.md          - This file
 ```
 
@@ -109,7 +118,7 @@ const MAZES = {
 
 ## ⚙️ Game Configuration
 
-Edit `config.js` to customize gameplay:
+Edit the `GAME_CONFIG` object at the top of `game.js` to customize gameplay:
 
 ```javascript
 const GAME_CONFIG = {
@@ -126,18 +135,32 @@ const GAME_CONFIG = {
         border: '#000000'   // Canvas border
     },
     
-    allowDiagonalMovement: false  // Currently not used
+    allowDiagonalMovement: false,  // Only 4-directional movement
+    moveDelay: 100  // milliseconds between moves
 };
 ```
 
 ### Changing Movement Speed
 
-Edit `game.js` in the `initPlayer()` method:
+Edit `moveDelay` in the `GAME_CONFIG` object:
 
 ```javascript
-this.moveDelay = 100;  // milliseconds between moves
-// Lower = faster (e.g., 50ms)
-// Higher = slower (e.g., 200ms)
+moveDelay: 100  // milliseconds between moves
+// Lower = faster (e.g., 50ms for quick gameplay)
+// Higher = slower (e.g., 200ms for relaxed gameplay)
+```
+
+### Styling Virtual D-Pad
+
+Customize D-Pad button appearance in `style.css` under `.dpad-btn` section:
+
+```css
+.dpad-btn {
+    width: 50px;            // Button size
+    height: 50px;
+    background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);  // Button color
+    /* ... more styles ... */
+}
 ```
 
 ## 🎮 Game Mechanics
@@ -173,23 +196,33 @@ this.moveDelay = 100;  // milliseconds between moves
 
 **Game won't load?**
 - Check browser console (F12) for errors
-- Ensure all script files are in the same folder
-- Verify maze has both start (2) and goal (3)
+- Ensure all script files are in the same folder: `index.html`, `game.js`, `mazes.js`, `style.css`
+- Verify each maze has both start (2) and goal (3) positions
+
+**D-Pad buttons not working?**
+- Ensure buttons have unique IDs: `dpadUp`, `dpadDown`, `dpadLeft`, `dpadRight`
+- Check that `setupDPad()` is called in `setupEventListeners()`
+- On mobile, make sure touch events are not blocked
 
 **Player stuck in walls?**
 - Check maze layout for incorrect values
-- Ensure walls (1) properly block paths
-- Verify start position (2) is not surrounded by walls
+- Ensure walls (1) properly surround the maze
+- Verify start position (2) has walkable cells adjacent to it
 
 **Level won't change?**
-- Make sure mazes.js has valid syntax
-- Verify level keys match in both files
+- Verify `mazes.js` has valid JavaScript syntax
+- Ensure each maze has exactly one start (2) and one goal (3)
 - Check browser console for JavaScript errors
 
-**Movement feels wrong?**
-- Adjust `moveDelay` in game.js
-- Try different `cellSize` values
-- Check keyboard responsiveness
+**Movement feels laggy?**
+- Decrease `moveDelay` value for faster movement
+- Try increasing it if movement is too fast to control
+- Test in a different browser
+
+**D-Pad buttons lag on mobile?**
+- Check device performance in browser console
+- Reduce `cellSize` if maze is too large
+- Ensure no other heavy scripts are running
 
 ## 📝 Level Design Guidelines
 
@@ -219,11 +252,14 @@ simple: {
 
 ## 🎯 Next Steps
 
-1. **Test the game** - Open `index.html` and play all 5 levels
-2. **Modify levels** - Edit `mazes.js` to change difficulty or paths
-3. **Add new levels** - Create level_6, level_7, etc.
-4. **Customize colors** - Update `config.js` for your preferred theme
-5. **Adjust speed** - Change `moveDelay` for your preferred pace
+1. **Test the game** - Open `index.html` in your browser and play all 5 levels
+2. **Test controls** - Try both keyboard (Arrow Keys/WASD) and Virtual D-Pad buttons
+3. **Test on mobile** - Open the game on a phone or tablet to see responsive D-Pad
+4. **Modify levels** - Edit `mazes.js` to change difficulty or paths
+5. **Add new levels** - Create level_6, level_7, etc. (automatically detected!)
+6. **Customize colors** - Edit `GAME_CONFIG.colors` in `game.js`
+7. **Adjust speed** - Change `moveDelay` in `GAME_CONFIG` for your preferred pace
+8. **Style D-Pad** - Customize button appearance in `style.css`
 
 ## 📄 License
 
@@ -231,4 +267,20 @@ Free to use and modify!
 
 ---
 
+## 🎮 Keyboard Shortcuts
+
+| Action | Keys |
+|--------|------|
+| Move Up | ↑ or W |
+| Move Down | ↓ or S |
+| Move Left | ← or A |
+| Move Right | → or D |
+| Skip End Screen | Enter or Space |
+| Reset Level | Click Reset Button |
+| Next Level | Click Next Level Button |
+
+---
+
 **Happy maze playing! 🎮**
+
+*Built with vanilla JavaScript - no frameworks needed!*

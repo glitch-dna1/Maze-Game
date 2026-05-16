@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze Game v2</title>
+    <title>Maze Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎮 Maze Game v2</h1>
+            <h1>🎮 Maze Game</h1>
             <div class="info">
                 <div class="controls-group">
                     <label for="mazeSelect">Select Maze:</label>
@@ -26,6 +26,17 @@
             <canvas id="mazeCanvas"></canvas>
         </div>
         
+        <!-- Virtual D-Pad for mobile devices -->
+        <div class="dpad-container">
+            <button class="dpad-btn dpad-up" id="dpadUp" title="Move Up">▲</button>
+            <div class="dpad-middle">
+                <button class="dpad-btn dpad-left" id="dpadLeft" title="Move Left">◀</button>
+                <button class="dpad-btn dpad-center" disabled></button>
+                <button class="dpad-btn dpad-right" id="dpadRight" title="Move Right">▶</button>
+            </div>
+            <button class="dpad-btn dpad-down" id="dpadDown" title="Move Down">▼</button>
+        </div>
+        
         <div id="endScreen" class="end-screen">
             <div id="endContent" class="end-content">
                 <!-- Content inserted by JavaScript -->
@@ -39,10 +50,12 @@
             <div class="instruction-box">
                 <h3>📋 How to Play:</h3>
                 <ul>
-                    <li>🎮 Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to move</li>
+                    <li>🎮 Use <strong>Arrow Keys</strong>, <strong>WASD</strong>, or <strong>D-Pad Buttons</strong> to move</li>
                     <li>🟢 <strong>Green</strong> = Start position</li>
                     <li>🔴 <strong>Red</strong> = Goal (reach to win)</li>
                     <li>🟦 <strong>Blue</strong> = Your player</li>
+                    <li>⏱️ <strong>Timer</strong> tracks your completion time</li>
+                    <li>🔄 Use <strong>Reset Game</strong> button to restart the current level</li>
                 </ul>
             </div>
             
