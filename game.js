@@ -62,6 +62,7 @@ class MazeGame {
         
         this.gameWon = false;
         this.startTime = Date.now();
+        this.finishTime = null;
     }
     
     setupEventListeners() {
@@ -86,9 +87,7 @@ class MazeGame {
         return { col, row };
     }
     
-    isWalkable(pixelX, pixelY) {
-        const { col, row } = this.getGridPosition(pixelX, pixelY);
-        
+    isCellWalkable(col, row) {
         // Check bounds
         if (row < 0 || row >= this.rows || col < 0 || col >= this.cols) {
             return false;
@@ -97,6 +96,29 @@ class MazeGame {
         // Check if it's a wall (1) - not walkable
         const cellType = this.layout[row][col];
         return cellType !== 1;
+    }
+    
+    isWalkable(pixelX, pixelY) {
+        const radius = this.player.radius * 0.8;  // Slightly smaller radius for collision
+        
+        // Check center and 4 cardinal directions
+        const checkPoints = [
+            { x: pixelX, y: pixelY },                // center
+            { x: pixelX + radius, y: pixelY },      // right
+            { x: pixelX - radius, y: pixelY },      // left
+            { x: pixelX, y: pixelY + radius },      // bottom
+            { x: pixelX, y: pixelY - radius }       // top
+        ];
+        
+        // All check points must be walkable
+        for (let point of checkPoints) {
+            const { col, row } = this.getGridPosition(point.x, point.y);
+            if (!this.isCellWalkable(col, row)) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
     updatePlayer() {
@@ -119,10 +141,19 @@ class MazeGame {
             newX += this.playerSpeed;
         }
         
-        // Collision detection - check if new position is valid
+        // Collision detection with axis-by-axis checking (allows sliding along walls)
         if (this.isWalkable(newX, newY)) {
             this.player.x = newX;
             this.player.y = newY;
+        } else {
+            // Try moving only on X axis (allows sliding along walls)
+            if (this.isWalkable(newX, this.player.y)) {
+                this.player.x = newX;
+            }
+            // Try moving only on Y axis (allows sliding along walls)
+            if (this.isWalkable(this.player.x, newY)) {
+                this.player.y = newY;
+            }
         }
         
         // Check if player reached the end
@@ -133,8 +164,10 @@ class MazeGame {
             (this.player.y - endPixelY) ** 2
         );
         
-        if (distance < this.cellSize / 2) {
+        if (distance < this.cellSize / 2 && !this.gameWon) {
             this.gameWon = true;
+            this.finishTime = Math.round((Date.now() - this.startTime) / 1000);
+            document.getElementById('timer').textContent = `Time: ${this.finishTime}s`;
         }
     }
     
@@ -190,8 +223,7 @@ class MazeGame {
         
         // Draw win message
         if (this.gameWon) {
-            const elapsedTime = Math.round((Date.now() - this.startTime) / 1000);
-            this.drawWinMessage(elapsedTime);
+            this.drawWinMessage(this.finishTime);
         }
     }
     
@@ -214,16 +246,18 @@ class MazeGame {
     gameLoop() {
         this.updatePlayer();
         this.draw();
-        this.updateTimer();
+        
+        // Only update timer if game is still running
+        if (!this.gameWon) {
+            this.updateTimer();
+        }
         
         requestAnimationFrame(() => this.gameLoop());
     }
     
     updateTimer() {
-        if (!this.gameWon) {
-            const elapsed = Math.round((Date.now() - this.startTime) / 1000);
-            document.getElementById('timer').textContent = `Time: ${elapsed}s`;
-        }
+        const elapsed = Math.round((Date.now() - this.startTime) / 1000);
+        document.getElementById('timer').textContent = `Time: ${elapsed}s`;
     }
 }
 
