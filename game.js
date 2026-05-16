@@ -69,8 +69,7 @@ class MazeGame {
             levelIndex = DEFAULT_MAZE_INDEX;
         }
         
-        const maze = MAZES[levelIndex];
-        this.layout = maze.layout;
+        this.layout = MAZES[levelIndex];
         this.rows = this.layout.length;
         this.cols = this.layout[0].length;
     }
