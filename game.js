@@ -23,6 +23,7 @@ class MazeGame {
         this.finishTime = null;
         this.currentMazeKey = mazeKey;
         this.showingEndScreen = false;
+        this.levelTimes = [];  // Track times for all completed levels
         
         // Setup event listeners and start game loop
         this.setupEventListeners();
@@ -271,17 +272,33 @@ class MazeGame {
         const currentLevelNum = this.currentLevelIndex + 1;
         const isLastLevel = this.currentLevelIndex === this.totalLevels - 1;
         
+        // Store this level's time
+        this.levelTimes.push({
+            level: currentLevelNum,
+            time: timeSeconds
+        });
+        
         const endScreen = document.getElementById('endScreen');
         const endContent = document.getElementById('endContent');
         
         if (isLastLevel) {
+            // Build times table HTML
+            let timesHTML = '<table class="times-table"><tr><th>Level</th><th>Time</th></tr>';
+            let totalTime = 0;
+            this.levelTimes.forEach(levelTime => {
+                timesHTML += `<tr><td>Level ${levelTime.level}</td><td>${levelTime.time}s</td></tr>`;
+                totalTime += levelTime.time;
+            });
+            timesHTML += `<tr class="total-row"><td>Total</td><td>${totalTime}s</td></tr></table>`;
+            
             endContent.innerHTML = `
                 <h2>🎉 GAME COMPLETED! 🎉</h2>
                 <p>You've completed all ${this.totalLevels} levels!</p>
-                <p class="time-display">Final Time: ${timeSeconds}s</p>
-                <p>Great job! Well done!</p>
+                <h3>📊 Level Times:</h3>
+                ${timesHTML}
+                <p class="time-display">Great job! Well done!</p>
             `;
-            document.getElementById('nextLevelBtn').textContent = 'Restart Game';
+            document.getElementById('nextLevelBtn').textContent = 'Play Again';
         } else {
             endContent.innerHTML = `
                 <h2>✅ Level ${currentLevelNum} Complete!</h2>
@@ -302,8 +319,9 @@ class MazeGame {
         const isLastLevel = this.currentLevelIndex === this.totalLevels - 1;
         
         if (isLastLevel) {
-            // Restart from first level
+            // Restart from first level - reset times for new game
             this.currentLevelIndex = 0;
+            this.levelTimes = [];
             const firstLevelKey = this.allMazeKeys[0];
             this.switchMaze(firstLevelKey);
             document.getElementById('mazeSelect').value = firstLevelKey;

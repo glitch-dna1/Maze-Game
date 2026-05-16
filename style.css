@@ -179,6 +179,12 @@ body {
     margin-bottom: 20px;
 }
 
+.end-content h3 {
+    color: #2C3E50;
+    font-size: 1.3em;
+    margin: 20px 0 10px 0;
+}
+
 .end-content p {
     color: #34495E;
     font-size: 1.1em;
@@ -190,6 +196,43 @@ body {
     color: #E74C3C;
     font-weight: bold;
     margin: 20px 0 !important;
+}
+
+.times-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    background: #F8F9FA;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.times-table th,
+.times-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ECF0F1;
+    color: #34495E;
+    font-size: 1em;
+}
+
+.times-table th {
+    background: #3498DB;
+    color: white;
+    font-weight: bold;
+}
+
+.times-table tr:last-child td {
+    border-bottom: none;
+}
+
+.times-table .total-row {
+    background: #E8F5E9;
+    font-weight: bold;
+}
+
+.times-table .total-row td {
+    color: #2E7D32;
 }
 
 .btn-large {
