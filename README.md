@@ -2,6 +2,10 @@
 
 An interactive **grid-based maze game** with **5 progressive levels**, automatic level progression, and **easily customizable maze designs**.
 
+## Live Demo
+
+- Play the game live: https://glitch-dna1.github.io/Maze-Game/
+
 ## Features
 
 ✅ **Grid-based movement** - Player moves cell-by-cell (stays centered in cells)
