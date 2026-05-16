@@ -25,7 +25,8 @@ const GAME_CONFIG = {
     wallThickness: 2,
     
     // Game behavior
-    allowDiagonalMovement: false
+    allowDiagonalMovement: false,
+    moveDelay: 100  // milliseconds between moves
 };
 
 // Auto-calculate player radius if not set
@@ -75,14 +76,9 @@ class MazeGame {
     }
     
     loadConfig() {
-        this.cellSize = GAME_CONFIG.cellSize;
-        this.playerSpeed = GAME_CONFIG.playerSpeed;
-        this.colors = GAME_CONFIG.colors;
-        this.playerRadius = GAME_CONFIG.playerRadius;
-        
         // Set canvas dimensions based on maze size
-        this.canvas.width = this.cols * this.cellSize;
-        this.canvas.height = this.rows * this.cellSize;
+        this.canvas.width = this.cols * GAME_CONFIG.cellSize;
+        this.canvas.height = this.rows * GAME_CONFIG.cellSize;
         
         // Find start and end positions
         this.findPositions();
@@ -114,27 +110,21 @@ class MazeGame {
     initPlayer() {
         if (!this.startPos) return;
         
-        // Player stored as grid position, not pixels
         this.player = {
             gridX: this.startPos.x,
             gridY: this.startPos.y,
-            radius: this.playerRadius
+            radius: GAME_CONFIG.playerRadius
         };
         
         this.lastMoveTime = 0;
-        this.moveDelay = 100; // milliseconds between moves (adjust for speed)
-        
         this.gameWon = false;
         this.startTime = Date.now();
         this.finishTime = null;
     }
     
     setupEventListeners() {
-        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             this.keys[e.key.toLowerCase()] = true;
-            
-            // Allow Enter or Space to proceed from end screen
             if (this.showingEndScreen && (e.key === 'Enter' || e.key === ' ')) {
                 this.proceedToNextLevel();
             }
@@ -144,20 +134,9 @@ class MazeGame {
             this.keys[e.key.toLowerCase()] = false;
         });
         
-        // Reset button
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            this.initPlayer();
-        });
-        
-        // Maze selector
-        document.getElementById('mazeSelect').addEventListener('change', (e) => {
-            this.switchMaze(parseInt(e.target.value));
-        });
-        
-        // End screen button
-        document.getElementById('nextLevelBtn').addEventListener('click', () => {
-            this.proceedToNextLevel();
-        });
+        document.getElementById('resetBtn').addEventListener('click', () => this.initPlayer());
+        document.getElementById('mazeSelect').addEventListener('change', (e) => this.switchMaze(parseInt(e.target.value)));
+        document.getElementById('nextLevelBtn').addEventListener('click', () => this.proceedToNextLevel());
     }
     
     switchMaze(levelIndex) {
@@ -214,7 +193,6 @@ class MazeGame {
             }
         }
         
-        // Update lastMoveTime every 200ms to register key press
         this.lastMoveTime = currentTime;
         
         // Apply movement if valid
@@ -232,45 +210,45 @@ class MazeGame {
     }
     
     draw() {
+        const { colors, cellSize } = GAME_CONFIG;
+        
         // Clear canvas
-        this.ctx.fillStyle = this.colors.path;
+        this.ctx.fillStyle = colors.path;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Draw maze
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
                 const cellType = this.layout[row][col];
-                const x = col * this.cellSize;
-                const y = row * this.cellSize;
+                const x = col * cellSize;
+                const y = row * cellSize;
                 
-                if (cellType === 1) { // Wall
-                    this.ctx.fillStyle = this.colors.wall;
-                    this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
-                } else if (cellType === 2) { // Start
-                    this.ctx.fillStyle = this.colors.start;
-                    this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
-                } else if (cellType === 3) { // End
-                    this.ctx.fillStyle = this.colors.end;
-                    this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
-                }
+                if (cellType === 1) {
+                    this.ctx.fillStyle = colors.wall;
+                } else if (cellType === 2) {
+                    this.ctx.fillStyle = colors.start;
+                } else if (cellType === 3) {
+                    this.ctx.fillStyle = colors.end;
+                } else continue;
+                
+                this.ctx.fillRect(x, y, cellSize, cellSize);
             }
         }
         
-        // Draw player at grid cell center
-        const playerPixelX = this.player.gridX * this.cellSize + this.cellSize / 2;
-        const playerPixelY = this.player.gridY * this.cellSize + this.cellSize / 2;
+        // Draw player
+        const playerPixelX = this.player.gridX * cellSize + cellSize / 2;
+        const playerPixelY = this.player.gridY * cellSize + cellSize / 2;
         
-        this.ctx.fillStyle = this.colors.player;
+        this.ctx.fillStyle = colors.player;
         this.ctx.beginPath();
         this.ctx.arc(playerPixelX, playerPixelY, this.player.radius, 0, Math.PI * 2);
         this.ctx.fill();
-        
-        this.ctx.strokeStyle = this.colors.playerBorder;
+        this.ctx.strokeStyle = colors.playerBorder;
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
         
         // Draw border
-        this.ctx.strokeStyle = this.colors.border;
+        this.ctx.strokeStyle = colors.border;
         this.ctx.lineWidth = 3;
         this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
     }
@@ -284,14 +262,7 @@ class MazeGame {
     }
     
     updateTimer() {
-        let elapsed;
-        
-        if (this.finishTime) {
-            elapsed = Math.floor((this.finishTime - this.startTime) / 1000);
-        } else {
-            elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-        }
-        
+        const elapsed = Math.floor(((this.finishTime || Date.now()) - this.startTime) / 1000);
         document.getElementById('timer').textContent = `⏱️ Time: ${elapsed}s`;
     }
     
