@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Maze Game</h1>
+            <div class="info">
+                <span id="timer">Time: 0s</span>
+                <button id="resetBtn" class="btn">Reset Game</button>
+            </div>
+        </div>
+        
+        <div class="game-wrapper">
+            <canvas id="mazeCanvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <p>🎮 Use Arrow Keys or WASD to move</p>
+            <p>🟢 Green = Start | 🔴 Red = End</p>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
