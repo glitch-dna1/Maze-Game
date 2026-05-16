@@ -14,11 +14,7 @@
                 <div class="controls-group">
                     <label for="mazeSelect">Select Maze:</label>
                     <select id="mazeSelect">
-                        <option value="level_1" selected>Level 1</option>
-                        <option value="level_2">Level 2</option>
-                        <option value="level_3">Level 3</option>
-                        <option value="level_4">Level 4</option>
-                        <option value="level_5">Level 5</option>
+                        <!-- Options populated by JavaScript -->
                     </select>
                 </div>
                 <span id="timer">⏱️ Time: 0s</span>
@@ -55,7 +51,7 @@
                 <p>To add or modify mazes:</p>
                 <ol>
                     <li>Open <code>mazes.js</code></li>
-                    <li>Add your maze to the <code>MAZES</code> object</li>
+                    <li>Add your maze to the <code>MAZES</code> array</li>
                     <li>Use: 1=wall, 0=path, 2=start, 3=end</li>
                     <li>Save and refresh the page</li>
                 </ol>
@@ -64,7 +60,19 @@
     </div>
 
     <script src="mazes.js"></script>
-    <script src="config.js"></script>
     <script src="game.js"></script>
+    <script>
+        // Populate maze selector from MAZES array
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('mazeSelect');
+            MAZES.forEach((maze, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `Level ${index + 1}`;
+                if (index === 0) option.selected = true;
+                select.appendChild(option);
+            });
+        });
+    </script>
 </body>
 </html>

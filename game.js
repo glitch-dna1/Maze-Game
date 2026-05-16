@@ -1,19 +1,53 @@
 // ============================================
+// GAME CONFIGURATION
+// ============================================
+
+const GAME_CONFIG = {
+    // Cell size in pixels
+    cellSize: 40,
+    
+    // Player movement speed (pixels per frame)
+    playerSpeed: 5,
+    
+    // Colors configuration
+    colors: {
+        wall: '#2C3E50',
+        path: '#ECF0F1',
+        player: '#3498DB',
+        playerBorder: '#2980B9',
+        start: '#2ECC71',
+        end: '#E74C3C',
+        border: '#000000'
+    },
+    
+    // Visual settings
+    playerRadius: null,  // Set to null to auto-calculate (1/3 of cellSize)
+    wallThickness: 2,
+    
+    // Game behavior
+    allowDiagonalMovement: false
+};
+
+// Auto-calculate player radius if not set
+if (GAME_CONFIG.playerRadius === null) {
+    GAME_CONFIG.playerRadius = GAME_CONFIG.cellSize / 3;
+}
+
+// ============================================
 // MAZE GAME - Main Game Logic
 // ============================================
 
 class MazeGame {
-    constructor(canvasId, mazeKey = DEFAULT_MAZE) {
+    constructor(canvasId, levelIndex = DEFAULT_MAZE_INDEX) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         
-        // Get all maze keys and track levels
-        this.allMazeKeys = Object.keys(MAZES);
-        this.totalLevels = this.allMazeKeys.length;
-        this.currentLevelIndex = this.allMazeKeys.indexOf(mazeKey);
+        // Track levels
+        this.totalLevels = MAZES.length;
+        this.currentLevelIndex = levelIndex;
         
         // Load maze and configuration
-        this.loadMaze(mazeKey);
+        this.loadMaze(levelIndex);
         this.loadConfig();
         
         // Game state
@@ -21,7 +55,6 @@ class MazeGame {
         this.gameWon = false;
         this.startTime = Date.now();
         this.finishTime = null;
-        this.currentMazeKey = mazeKey;
         this.showingEndScreen = false;
         this.levelTimes = [];  // Track times for all completed levels
         
@@ -30,16 +63,14 @@ class MazeGame {
         this.gameLoop();
     }
     
-    loadMaze(mazeKey) {
-        if (!MAZES[mazeKey]) {
-            console.error(`Maze '${mazeKey}' not found!`);
-            console.log('Available mazes:', Object.keys(MAZES));
-            mazeKey = DEFAULT_MAZE;
+    loadMaze(levelIndex) {
+        if (levelIndex < 0 || levelIndex >= MAZES.length) {
+            console.error(`Level ${levelIndex} not found!`);
+            levelIndex = DEFAULT_MAZE_INDEX;
         }
         
-        const maze = MAZES[mazeKey];
+        const maze = MAZES[levelIndex];
         this.layout = maze.layout;
-        this.mazeName = maze.name;
         this.rows = this.layout.length;
         this.cols = this.layout[0].length;
     }
@@ -121,7 +152,7 @@ class MazeGame {
         
         // Maze selector
         document.getElementById('mazeSelect').addEventListener('change', (e) => {
-            this.switchMaze(e.target.value);
+            this.switchMaze(parseInt(e.target.value));
         });
         
         // End screen button
@@ -130,11 +161,10 @@ class MazeGame {
         });
     }
     
-    switchMaze(mazeKey) {
-        this.loadMaze(mazeKey);
+    switchMaze(levelIndex) {
+        this.loadMaze(levelIndex);
         this.loadConfig();
-        this.currentMazeKey = mazeKey;
-        this.currentLevelIndex = this.allMazeKeys.indexOf(mazeKey);
+        this.currentLevelIndex = levelIndex;
     }
     
     isCellWalkable(col, row) {
@@ -322,20 +352,18 @@ class MazeGame {
             // Restart from first level - reset times for new game
             this.currentLevelIndex = 0;
             this.levelTimes = [];
-            const firstLevelKey = this.allMazeKeys[0];
-            this.switchMaze(firstLevelKey);
-            document.getElementById('mazeSelect').value = firstLevelKey;
+            this.switchMaze(0);
+            document.getElementById('mazeSelect').value = '0';
         } else {
             // Go to next level
             this.currentLevelIndex++;
-            const nextLevelKey = this.allMazeKeys[this.currentLevelIndex];
-            this.switchMaze(nextLevelKey);
-            document.getElementById('mazeSelect').value = nextLevelKey;
+            this.switchMaze(this.currentLevelIndex);
+            document.getElementById('mazeSelect').value = String(this.currentLevelIndex);
         }
     }
 }
 
 // Initialize game when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    const game = new MazeGame('mazeCanvas', DEFAULT_MAZE);
+    const game = new MazeGame('mazeCanvas', DEFAULT_MAZE_INDEX);
 });
